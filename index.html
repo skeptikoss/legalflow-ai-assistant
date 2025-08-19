@@ -1141,90 +1141,80 @@
         
         async showPDFPreviewModal() {
           try {
-            // Generate preview URL using data URL
-            const previewResponse = await fetch('/api/pdf-preview', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                content: this.generatedLetter,
-                clientName: this.formData.clientName,
-                isDraft: true
-              })
-            });
+            // Use HTML-based preview that works in serverless environments
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/api/pdf-html';
+            form.target = '_blank';
             
-            if (previewResponse.ok) {
-              const previewHtml = await previewResponse.text();
-              const blob = new Blob([previewHtml], { type: 'text/html' });
-              this.previewUrl = URL.createObjectURL(blob);
-              this.showPDFPreview = true;
-            }
+            const contentInput = document.createElement('input');
+            contentInput.type = 'hidden';
+            contentInput.name = 'content';
+            contentInput.value = this.generatedLetter;
+            
+            const clientInput = document.createElement('input');
+            clientInput.type = 'hidden';
+            clientInput.name = 'clientName';
+            clientInput.value = this.formData.clientName;
+            
+            const draftInput = document.createElement('input');
+            draftInput.type = 'hidden';
+            draftInput.name = 'isDraft';
+            draftInput.value = 'true';
+            
+            form.appendChild(contentInput);
+            form.appendChild(clientInput);
+            form.appendChild(draftInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
           } catch (error) {
             console.error('PDF preview error:', error);
-            // Fallback to direct download if preview fails
-            this.downloadPDF(false);
+            alert('Unable to open preview. Please try copying the text content.');
           }
         },
 
         async downloadPDF(isDraft = false) {
           try {
-            // Show loading state
-            const originalButton = event?.target;
-            if (originalButton) {
-              originalButton.disabled = true;
-              originalButton.innerHTML = isDraft ? '⏳ Generating Draft...' : '⏳ Generating PDF...';
-            }
+            // Use HTML-based PDF solution that works in serverless environments
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/api/pdf-html';
+            form.target = '_blank';
             
-            const response = await fetch('/api/pdf', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                content: this.generatedLetter,
-                clientName: this.formData.clientName,
-                isDraft: isDraft
-              })
-            });
+            const contentInput = document.createElement('input');
+            contentInput.type = 'hidden';
+            contentInput.name = 'content';
+            contentInput.value = this.generatedLetter;
             
-            if (response.ok) {
-              const blob = await response.blob();
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              
-              // Get filename from response headers
-              const contentDisposition = response.headers.get('Content-Disposition');
-              let filename = `engagement-letter-${this.formData.clientName.replace(/\s+/g, '-').toLowerCase()}`;
-              if (contentDisposition) {
-                const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
-                if (filenameMatch) {
-                  filename = filenameMatch[1];
-                }
-              }
-              
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              window.URL.revokeObjectURL(url);
-              document.body.removeChild(a);
-              
-              // Close preview modal if open
-              this.showPDFPreview = false;
-              
-              // Show success message
-              this.showSuccessMessage(isDraft ? 'Draft PDF downloaded!' : 'Final PDF downloaded!');
-            }
+            const clientInput = document.createElement('input');
+            clientInput.type = 'hidden';
+            clientInput.name = 'clientName';
+            clientInput.value = this.formData.clientName;
+            
+            const draftInput = document.createElement('input');
+            draftInput.type = 'hidden';
+            draftInput.name = 'isDraft';
+            draftInput.value = isDraft.toString();
+            
+            form.appendChild(contentInput);
+            form.appendChild(clientInput);
+            form.appendChild(draftInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
+            // Show success message
+            setTimeout(() => {
+              this.showSuccessMessage(`${isDraft ? 'Draft' : 'Final'} PDF opened in new tab! Use your browser's "Print to PDF" to save the document.`);
+            }, 500);
+            
           } catch (error) {
             console.error('PDF download error:', error);
-            this.showErrorMessage('PDF download failed. Please try again.');
-          } finally {
-            // Reset button state
-            if (originalButton) {
-              originalButton.disabled = false;
-              originalButton.innerHTML = isDraft ? '📥 Download Draft PDF' : '📥 Download Final PDF';
-            }
+            this.showErrorMessage('PDF generation failed. Please try again.');
           }
         },
         

@@ -43,8 +43,16 @@ module.exports = async (req, res) => {
         '--disable-gpu',
         '--no-first-run',
         '--no-default-browser-check',
-        '--disable-default-apps'
-      ]
+        '--disable-default-apps',
+        '--disable-extensions',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+        '--disable-features=TranslateUI',
+        '--disable-ipc-flooding-protection',
+        '--single-process'
+      ],
+      executablePath: process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
     });
 
     const page = await browser.newPage();
