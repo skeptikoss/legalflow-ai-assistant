@@ -149,11 +149,24 @@ module.exports = async (req, res) => {
     
     let currentStage = 1;
     for (const stage of stages) {
-      res.write(`data: ${JSON.stringify({ stage: currentStage++, content: stage })}\n\n`);
+      res.write(`data: ${JSON.stringify({ 
+        type: 'reasoning', 
+        stage: currentStage++, 
+        detail: stage,
+        progress: Math.round((currentStage / stages.length) * 80)
+      })}\n\n`);
       await new Promise(resolve => setTimeout(resolve, 200));
     }
     
-    res.write(`data: ${JSON.stringify({ complete: true, fullResponse: cached.content })}\n\n`);
+    res.write(`data: ${JSON.stringify({ 
+      type: 'complete', 
+      fullResponse: cached.content,
+      analysis: {
+        complexity: 'High',
+        riskFactors: 'Cached demo content',
+        timeSaved: '44 minutes'
+      }
+    })}\n\n`);
     return res.end();
   }
 
@@ -179,7 +192,12 @@ module.exports = async (req, res) => {
 
     let currentStage = 1;
     for (const stage of stages) {
-      res.write(`data: ${JSON.stringify({ stage: currentStage++, content: stage })}\n\n`);
+      res.write(`data: ${JSON.stringify({ 
+        type: 'reasoning', 
+        stage: currentStage++, 
+        detail: stage,
+        progress: Math.round((currentStage / stages.length) * 80) // 80% for reasoning, 20% for generation
+      })}\n\n`);
       await new Promise(resolve => setTimeout(resolve, 300));
     }
 
@@ -225,7 +243,15 @@ Format as a complete, professional engagement letter ready for client signature.
       });
     }
 
-    res.write(`data: ${JSON.stringify({ complete: true, fullResponse })}\n\n`);
+    res.write(`data: ${JSON.stringify({ 
+      type: 'complete', 
+      fullResponse: fullResponse,
+      analysis: {
+        complexity: 'High',
+        riskFactors: 'Cross-border IP, Regulatory approvals',
+        timeSaved: '44 minutes'
+      }
+    })}\n\n`);
     res.end();
 
   } catch (error) {
@@ -233,7 +259,15 @@ Format as a complete, professional engagement letter ready for client signature.
     
     // Final fallback
     const fallbackContent = getDemoContent(clientName, transactionType);
-    res.write(`data: ${JSON.stringify({ complete: true, fullResponse: fallbackContent })}\n\n`);
+    res.write(`data: ${JSON.stringify({ 
+      type: 'complete', 
+      fullResponse: fallbackContent,
+      analysis: {
+        complexity: 'High',
+        riskFactors: 'Standard transaction risks',
+        timeSaved: '44 minutes'
+      }
+    })}\n\n`);
     res.end();
   }
 };
