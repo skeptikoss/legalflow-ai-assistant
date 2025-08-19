@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LegalFlow AI Assistant - From Brief to Draft in 90 Seconds™</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    @keyframes gradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    @keyframes typewriter {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+      50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+    }
+    
+    @keyframes slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes count-up {
+      from { transform: scale(0.8); opacity: 0.6; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes success-bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(-45deg, #1e293b, #334155, #475569, #64748b);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+    }
+    
+    .typewriter {
+      overflow: hidden;
+      border-right: 3px solid #3b82f6;
+      white-space: nowrap;
+      animation: typewriter 3s steps(40, end);
+    }
+    
+    .glow-button {
+      animation: pulse-glow 2s infinite;
+    }
+    
+    .slide-up {
+      animation: slide-up 0.6s ease-out forwards;
+    }
+    
+    .panel-shadow {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .reasoning-message {
+      animation: slide-up 0.4s ease-out;
+    }
+    
+    .progress-bar {
+      transition: width 0.5s ease-out;
+    }
+    
+    .count-animation {
+      animation: count-up 0.5s ease-out;
+    }
+    
+    .success-bounce {
+      animation: success-bounce 1s ease-out;
+    }
+    
+    .hover-lift {
+      transition: all 0.3s ease;
+    }
+    
+    .hover-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen" x-data="legalFlowApp()">
+  <!-- Hero Section -->
+  <div class="container mx-auto px-6 py-8">
+    <div class="text-center mb-12">
+      <h1 class="text-6xl font-bold text-white mb-4 typewriter" x-show="showHero">
+        From Brief to Draft in 90 Seconds™
+      </h1>
+      <p class="text-xl text-slate-200 mb-8 slide-up" x-show="showSubtitle" x-transition:enter.delay.500ms>
+        AI-powered M&A engagement letters for Singapore law firms
+      </p>
+      <div class="text-slate-300 slide-up" x-show="showStats" x-transition:enter.delay.1000ms>
+        <span class="inline-block mx-4">⚡ 95% faster than manual</span>
+        <span class="inline-block mx-4">🇸🇬 100% Singapore compliant</span>
+        <span class="inline-block mx-4">💰 Average saving: S$225 per letter</span>
+      </div>
+    </div>
+
+    <!-- Three Panel Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+      
+      <!-- Panel 1: Smart Input -->
+      <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-8 panel-shadow slide-up hover-lift" 
+           x-show="showPanels" x-transition:enter.delay.1500ms>
+        <div class="flex items-center mb-6">
+          <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+            <span class="text-white font-bold text-lg">1</span>
+          </div>
+          <h2 class="text-2xl font-semibold text-slate-800">Quick Brief</h2>
+        </div>
+        
+        <form @submit.prevent="generateLetter" class="space-y-6">
+          <!-- Client Information -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Client Company</label>
+            <input 
+              type="text" 
+              x-model="formData.clientName"
+              placeholder="e.g., TechVentures Pte Ltd"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              required
+            >
+            <p class="text-xs text-slate-500 mt-1" x-show="formData.clientName">
+              <span x-text="getClientSuggestion(formData.clientName)"></span>
+            </p>
+          </div>
+
+          <!-- Transaction Type -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Transaction Type</label>
+            <select 
+              x-model="formData.transactionType"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              required
+            >
+              <option value="">Select transaction type</option>
+              <option value="acquisition">Asset/Share Acquisition</option>
+              <option value="merger">Corporate Merger</option>
+              <option value="divestiture">Divestiture/Spin-off</option>
+              <option value="joint-venture">Joint Venture</option>
+            </select>
+          </div>
+
+          <!-- Transaction Value -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Transaction Value</label>
+            <select 
+              x-model="formData.transactionValue"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              required
+            >
+              <option value="">Select value range</option>
+              <option value="under-5m">Under S$5 million</option>
+              <option value="5m-25m">S$5-25 million</option>
+              <option value="25m-100m">S$25-100 million</option>
+              <option value="over-100m">Over S$100 million</option>
+            </select>
+          </div>
+
+          <!-- Urgency -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Timeline</label>
+            <select 
+              x-model="formData.urgency"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              required
+            >
+              <option value="">Select timeline</option>
+              <option value="urgent">Urgent (Same day signing)</option>
+              <option value="standard">Standard (1-2 weeks)</option>
+              <option value="complex">Complex (Due diligence required)</option>
+            </select>
+          </div>
+
+          <!-- Special Requirements -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Special Considerations</label>
+            <textarea 
+              x-model="formData.specialRequirements"
+              placeholder="e.g., Cross-border elements, regulatory approvals, confidentiality concerns..."
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 h-24 resize-none"
+            ></textarea>
+          </div>
+
+          <!-- Generate Button -->
+          <button 
+            type="submit" 
+            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 glow-button"
+            :class="{ 'opacity-50 cursor-not-allowed': isGenerating }"
+            :disabled="isGenerating"
+          >
+            <span x-show="!isGenerating">🚀 Generate Engagement Letter</span>
+            <span x-show="isGenerating">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Generating...
+            </span>
+          </button>
+        </form>
+
+        <!-- Demo Shortcuts -->
+        <div class="mt-8 p-4 bg-slate-50 rounded-lg" x-show="!isGenerating">
+          <h3 class="text-sm font-medium text-slate-700 mb-3">Quick Demo Scenarios:</h3>
+          <div class="space-y-2">
+            <button @click="loadDemo('techAcquisition')" class="w-full text-left text-sm text-blue-600 hover:text-blue-800 transition-colors">
+              💻 Tech Acquisition - S$50M
+            </button>
+            <button @click="loadDemo('realEstateMerger')" class="w-full text-left text-sm text-blue-600 hover:text-blue-800 transition-colors">
+              🏢 Real Estate Merger - S$25M
+            </button>
+            <button @click="loadDemo('startupFunding')" class="w-full text-left text-sm text-blue-600 hover:text-blue-800 transition-colors">
+              🚀 Startup Funding - S$8M
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: AI Intelligence Display -->
+      <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-8 panel-shadow slide-up hover-lift" 
+           x-show="showPanels" x-transition:enter.delay.1700ms>
+        <div class="flex items-center mb-6">
+          <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center mr-4">
+            <span class="text-white font-bold text-lg">2</span>
+          </div>
+          <h2 class="text-2xl font-semibold text-slate-800">AI Reasoning</h2>
+        </div>
+
+        <!-- Intelligence Score Display -->
+        <div class="mb-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200" x-show="intelligenceScore > 0">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-purple-800">AI Intelligence Score</span>
+            <span class="text-lg font-bold text-purple-700" x-text="intelligenceScore + '/100'"></span>
+          </div>
+          <div class="w-full bg-purple-200 rounded-full h-2">
+            <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-1000" 
+                 :style="'width: ' + intelligenceScore + '%'"></div>
+          </div>
+          <p class="text-xs text-purple-600 mt-1" x-text="getIntelligenceDescription(intelligenceScore)"></p>
+        </div>
+
+        <div class="space-y-3 h-80 overflow-y-auto" id="reasoning-display">
+          <template x-for="message in reasoningMessages" :key="message.id">
+            <div class="reasoning-message p-3 rounded-lg transition-all duration-300 hover:shadow-md" 
+                 :class="getMessageStyling(message.type, message.stage)">
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0 text-xl animate-pulse" x-text="message.icon"></div>
+                <div class="flex-1">
+                  <div class="flex items-center justify-between mb-1">
+                    <p class="text-sm font-semibold text-slate-800" x-text="message.stage"></p>
+                    <span class="text-xs text-slate-500" x-text="message.timestamp"></span>
+                  </div>
+                  <p class="text-sm text-slate-700 leading-relaxed" x-text="message.detail"></p>
+                  <div class="mt-2" x-show="message.metrics">
+                    <div class="flex space-x-4 text-xs">
+                      <span class="text-blue-600" x-show="message.metrics?.complexity" x-text="'Complexity: ' + message.metrics.complexity"></span>
+                      <span class="text-green-600" x-show="message.metrics?.risks" x-text="'Risks: ' + message.metrics.risks"></span>
+                      <span class="text-purple-600" x-show="message.metrics?.clauses" x-text="'Clauses: ' + message.metrics.clauses"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+          
+          <!-- Default state -->
+          <div x-show="reasoningMessages.length === 0" class="text-center text-slate-400 py-8">
+            <div class="text-5xl mb-3">🧠</div>
+            <p class="text-base font-medium mb-2">AI Legal Intelligence Engine</p>
+            <p class="text-sm">Advanced reasoning will appear here</p>
+            <div class="flex justify-center space-x-4 mt-4 text-xs text-slate-500">
+              <div class="flex items-center space-x-1">
+                <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <span>Analysis</span>
+              </div>
+              <div class="flex items-center space-x-1">
+                <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <span>Intelligence</span>
+              </div>
+              <div class="flex items-center space-x-1">
+                <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span>Generation</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Compliance Checklist -->
+        <div class="mt-4 p-3 bg-green-50 rounded-lg border border-green-200" x-show="complianceChecks.length > 0">
+          <h4 class="text-sm font-semibold text-green-800 mb-2">Singapore Compliance Status</h4>
+          <div class="space-y-1">
+            <template x-for="check in complianceChecks" :key="check.name">
+              <div class="flex items-center space-x-2 text-xs">
+                <div class="text-green-600" x-text="check.status === 'complete' ? '✓' : '○'"></div>
+                <span class="text-green-700" x-text="check.name"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Enhanced Progress Bar -->
+        <div class="mt-4" x-show="isGenerating">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-semibold text-slate-700">AI Generation Progress</span>
+            <span class="text-sm font-bold text-slate-600" x-text="progress + '%'"></span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-4 relative overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 h-4 rounded-full progress-bar animate-pulse" 
+                 :style="'width: ' + progress + '%'"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-pulse"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-600 mt-2 font-medium">
+            <span>Traditional: 45 min</span>
+            <span class="text-green-600" x-text="'Saving: ' + Math.round((progress/100) * 43.5) + ' min'"></span>
+            <span class="text-blue-600" x-text="'S$' + Math.round((progress/100) * 225)"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Perfect Output -->
+      <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-8 panel-shadow slide-up hover-lift" 
+           x-show="showPanels" x-transition:enter.delay.1900ms>
+        <div class="flex items-center mb-6">
+          <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-4">
+            <span class="text-white font-bold text-lg">3</span>
+          </div>
+          <h2 class="text-2xl font-semibold text-slate-800">Professional Output</h2>
+        </div>
+
+        <div class="h-96 overflow-y-auto" id="output-display">
+          <!-- Generated Letter Preview -->
+          <div x-show="generatedLetter" class="prose prose-sm max-w-none">
+            <div class="bg-white border rounded-lg p-6 shadow-sm">
+              <div class="text-center mb-6 border-b pb-4">
+                <h3 class="text-xl font-bold text-slate-800">ENGAGEMENT LETTER</h3>
+                <p class="text-sm text-slate-600 mt-2">Draft prepared by LegalFlow AI</p>
+              </div>
+              <div class="whitespace-pre-wrap text-sm leading-relaxed" x-html="generatedLetter"></div>
+            </div>
+          </div>
+
+          <!-- Default state -->
+          <div x-show="!generatedLetter" class="text-center text-slate-400 py-12">
+            <div class="text-6xl mb-4">📄</div>
+            <p class="text-lg">Your engagement letter will appear here</p>
+            <p class="text-sm">Professional, compliant, and ready to send</p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-6 space-y-3" x-show="generatedLetter">
+          <div class="success-bounce">
+            <div class="flex gap-3">
+              <button 
+                @click="showPDFPreviewModal()"
+                class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 glow-button"
+              >
+                👁️ Preview Document
+              </button>
+              <button 
+                @click="downloadPDF(false)"
+                class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 glow-button"
+              >
+                📥 Download PDF
+              </button>
+            </div>
+          </div>
+          <button 
+            @click="showROIModal()"
+            class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold py-3 px-6 rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 hover-lift"
+          >
+            💰 See Your S$219K Annual Impact
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process Comparison Section -->
+    <div class="max-w-7xl mx-auto mt-16 px-6" x-show="isGenerating || generatedLetter">
+      <h2 class="text-3xl font-bold text-white text-center mb-8">Manual vs AI Process Comparison</h2>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Manual Process -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 panel-shadow">
+          <div class="flex items-center mb-4">
+            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mr-3">
+              <span class="text-white font-bold text-sm">📋</span>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-800">Traditional Manual Process</h3>
+          </div>
+          
+          <div class="space-y-3">
+            <template x-for="(step, index) in manualSteps" :key="index">
+              <div class="flex items-center space-x-3 p-3 rounded-lg" 
+                   :class="shouldShowManualStep(index) ? 'bg-red-50 border-l-4 border-red-400' : 'bg-slate-50'">
+                <div class="flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center" 
+                     :class="shouldShowManualStep(index) ? 'border-red-500 bg-red-100' : 'border-slate-300'">
+                  <span class="text-xs font-bold" 
+                        :class="shouldShowManualStep(index) ? 'text-red-600' : 'text-slate-500'" 
+                        x-text="index + 1"></span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium" 
+                     :class="shouldShowManualStep(index) ? 'text-red-800' : 'text-slate-600'" 
+                     x-text="step.name"></p>
+                  <p class="text-xs" 
+                     :class="shouldShowManualStep(index) ? 'text-red-600' : 'text-slate-500'" 
+                     x-text="step.duration"></p>
+                </div>
+                <div class="text-xl" x-show="shouldShowManualStep(index) && isGenerating">
+                  ⏳
+                </div>
+              </div>
+            </template>
+            
+            <!-- Manual Process Timer -->
+            <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-200" x-show="isGenerating">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-red-800">Manual Time Elapsed</span>
+                <span class="text-lg font-bold text-red-700" x-text="formatTime(manualTimeElapsed)"></span>
+              </div>
+              <div class="text-xs text-red-600" x-text="getManualProcessStatus()"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Process -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 panel-shadow">
+          <div class="flex items-center mb-4">
+            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+              <span class="text-white font-bold text-sm">🤖</span>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-800">LegalFlow AI Process</h3>
+          </div>
+          
+          <div class="space-y-3">
+            <template x-for="(step, index) in aiSteps" :key="index">
+              <div class="flex items-center space-x-3 p-3 rounded-lg" 
+                   :class="shouldShowAiStep(index) ? 'bg-green-50 border-l-4 border-green-400' : 'bg-slate-50'">
+                <div class="flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center" 
+                     :class="shouldShowAiStep(index) ? 'border-green-500 bg-green-100' : 'border-slate-300'">
+                  <span class="text-xs font-bold" 
+                        :class="shouldShowAiStep(index) ? 'text-green-600' : 'text-slate-500'" 
+                        x-text="index + 1"></span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium" 
+                     :class="shouldShowAiStep(index) ? 'text-green-800' : 'text-slate-600'" 
+                     x-text="step.name"></p>
+                  <p class="text-xs" 
+                     :class="shouldShowAiStep(index) ? 'text-green-600' : 'text-slate-500'" 
+                     x-text="step.duration"></p>
+                </div>
+                <div class="text-xl" x-show="shouldShowAiStep(index) && isGenerating">
+                  ✨
+                </div>
+              </div>
+            </template>
+            
+            <!-- AI Process Timer -->
+            <div class="mt-4 p-3 bg-green-50 rounded-lg border border-green-200" x-show="isGenerating">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-green-800">AI Generation Time</span>
+                <span class="text-lg font-bold text-green-700" x-text="formatTime(aiTimeElapsed)"></span>
+              </div>
+              <div class="text-xs text-green-600" x-text="getAiProcessStatus()"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Savings Counter -->
+      <div class="mt-8 text-center" x-show="progress > 0">
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 panel-shadow inline-block">
+          <h3 class="text-lg font-semibold text-slate-800 mb-4">Real-Time Savings</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-blue-600 mb-1 count-animation" 
+                   :class="progress >= 100 ? 'success-bounce' : ''"
+                   x-text="Math.round((progress/100) * 43.5) + ' min'"></div>
+              <p class="text-sm text-blue-700">Time Saved</p>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-green-600 mb-1 count-animation" 
+                   :class="progress >= 100 ? 'success-bounce' : ''"
+                   x-text="'S$' + Math.round((progress/100) * 225)"></div>
+              <p class="text-sm text-green-700">Cost Saved</p>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-purple-600 mb-1 count-animation" 
+                   :class="progress >= 100 ? 'success-bounce' : ''"
+                   x-text="Math.round(progress) + '%'"></div>
+              <p class="text-sm text-purple-700">Efficiency Gain</p>
+            </div>
+          </div>
+          
+          <div class="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200" x-show="progress >= 100">
+            <div class="text-center">
+              <p class="text-lg font-bold text-slate-800 mb-2">
+                🎉 <span class="text-green-600">AI COMPLETE!</span> Manual process still has 
+                <span class="font-bold text-red-600 text-xl" x-text="Math.max(0, 45 - Math.round(aiTimeElapsed/60)) + ' minutes to go'"></span>
+              </p>
+              <div class="flex justify-center space-x-6 mt-3">
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-green-600">90s</div>
+                  <p class="text-xs text-green-700">AI Time</p>
+                </div>
+                <div class="text-4xl text-slate-400">vs</div>
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-red-600">45min</div>
+                  <p class="text-xs text-red-700">Manual Time</p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-600 mt-2 italic">
+                ⏰ <strong>You just got 43.5 minutes of your life back!</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced ROI Modal -->
+    <div x-show="showROI" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-90"
+         x-transition:enter-end="opacity-100 scale-100"
+         @keydown.escape="showROI = false">
+      <div class="bg-white rounded-3xl p-8 max-w-4xl mx-4 shadow-2xl" @click.away="showROI = false">
+        <div class="text-center mb-8">
+          <h3 class="text-3xl font-bold text-slate-800 mb-2">Your LegalFlow ROI Impact</h3>
+          <p class="text-slate-600">Based on 15 engagement letters per week at current Singapore market rates</p>
+        </div>
+        
+        <!-- Primary Savings Display -->
+        <div class="mb-8 p-8 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl border border-green-200 relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-r from-green-100/20 to-emerald-100/20 animate-pulse"></div>
+          <div class="relative text-center">
+            <div class="text-6xl font-bold text-green-600 mb-3" x-text="'S$' + animatedAnnualSavings.toLocaleString()"></div>
+            <p class="text-xl text-green-700 font-semibold mb-2">Annual Cost Savings</p>
+            <p class="text-sm text-green-600">That's S${{ Math.round(animatedAnnualSavings/12).toLocaleString() }} per month saved!</p>
+          </div>
+        </div>
+        
+        <!-- Detailed Metrics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200 hover:shadow-lg transition-all">
+            <div class="text-4xl font-bold text-blue-600 mb-2" x-text="animatedHoursPerWeek + 'h'"></div>
+            <p class="text-blue-700 font-medium mb-1">Time Saved Weekly</p>
+            <p class="text-xs text-blue-600">{{ Math.round(animatedHoursPerWeek * 52) }} hours/year</p>
+          </div>
+          
+          <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200 hover:shadow-lg transition-all">
+            <div class="text-4xl font-bold text-purple-600 mb-2" x-text="animatedLettersPerWeek + 'x'"></div>
+            <p class="text-purple-700 font-medium mb-1">Letters/Week</p>
+            <p class="text-xs text-purple-600">{{ animatedLettersPerWeek * 52 }} letters/year</p>
+          </div>
+          
+          <div class="text-center p-6 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:shadow-lg transition-all">
+            <div class="text-4xl font-bold text-amber-600 mb-2">95%</div>
+            <p class="text-amber-700 font-medium mb-1">Efficiency Gain</p>
+            <p class="text-xs text-amber-600">From 45 min to 90 sec</p>
+          </div>
+        </div>
+        
+        <!-- Enhanced Life Impact Metrics -->
+        <div class="bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl p-6 mb-8 border border-blue-200">
+          <h4 class="text-xl font-semibold text-slate-800 mb-6 text-center">Transform Your Legal Practice & Life</h4>
+          
+          <!-- Primary Life Impact -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="flex items-center space-x-4 p-5 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl shadow-sm border border-green-200 hover:shadow-md transition-all">
+              <div class="text-4xl animate-pulse">⏰</div>
+              <div>
+                <div class="text-2xl font-bold text-green-700" x-text="Math.round(animatedHoursPerWeek) + ' hours/week'"></div>
+                <p class="text-sm text-green-600 font-medium">Returned to your personal life</p>
+                <p class="text-xs text-green-500">That's {{ Math.round(animatedHoursPerWeek * 52) }} hours per year!</p>
+              </div>
+            </div>
+            
+            <div class="flex items-center space-x-4 p-5 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl shadow-sm border border-blue-200 hover:shadow-md transition-all">
+              <div class="text-4xl animate-pulse">🏠</div>
+              <div>
+                <div class="text-2xl font-bold text-blue-700" x-text="Math.floor(animatedHoursPerWeek * 4.3 / 8) + ' days/month'"></div>
+                <p class="text-sm text-blue-600 font-medium">Extra family time</p>
+                <p class="text-xs text-blue-500">Home for dinner, not working late</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Secondary Benefits -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="text-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-all">
+              <div class="text-3xl mb-2">💰</div>
+              <div class="text-lg font-bold text-slate-800" x-text="'S$' + Math.round(animatedAnnualSavings/52).toLocaleString() + '/week'"></div>
+              <p class="text-xs text-slate-600">Pure cost savings</p>
+            </div>
+            
+            <div class="text-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-all">
+              <div class="text-3xl mb-2">📈</div>
+              <div class="text-lg font-bold text-slate-800">3000%</div>
+              <p class="text-xs text-slate-600">Efficiency improvement</p>
+            </div>
+            
+            <div class="text-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-all">
+              <div class="text-3xl mb-2">🎯</div>
+              <div class="text-lg font-bold text-slate-800" x-text="Math.round(animatedLettersPerWeek * 52) + '/year'"></div>
+              <p class="text-xs text-slate-600">Perfect letters generated</p>
+            </div>
+          </div>
+          
+          <!-- Life Quality Transformation -->
+          <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200">
+            <div class="text-center">
+              <p class="text-base font-semibold text-amber-800 mb-2">🌟 Quality of Life Transformation</p>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div class="text-amber-700">
+                  <span class="font-bold">6pm finishes</span> instead of 9pm
+                </div>
+                <div class="text-amber-700">
+                  <span class="font-bold">Weekend freedom</span> no catch-up work
+                </div>
+                <div class="text-amber-700">
+                  <span class="font-bold">Stress reduction</span> consistent quality
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Government Support Highlight -->
+        <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-4 mb-6 border border-red-200">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">🇸🇬</div>
+            <div>
+              <p class="font-semibold text-red-800">Singapore Government PSG Funding Available</p>
+              <p class="text-sm text-red-600">Up to 80% funding support for qualifying legal practices</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button @click="showROI = false" 
+                  class="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all transform hover:scale-105 shadow-lg">
+            🚀 Start Your Transformation
+          </button>
+          <button @click="showROI = false" 
+                  class="px-8 py-3 bg-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-300 transition-colors">
+            Close
+          </button>
+        </div>
+        
+        <!-- Testimonial Quote -->
+        <div class="mt-6 text-center p-4 bg-slate-50 rounded-lg">
+          <p class="text-slate-600 italic text-sm mb-2">
+            "That's dinner with family instead of late-night drafting, weekends free instead of weekend work."  
+          </p>
+          <p class="text-xs text-slate-500">- Senior Associate, Magic Circle Firm</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF Preview Modal -->
+    <div x-show="showPDFPreview" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-90"
+         x-transition:enter-end="opacity-100 scale-100"
+         @keydown.escape="showPDFPreview = false">
+      <div class="bg-white rounded-2xl max-w-5xl max-h-[90vh] mx-4 shadow-2xl overflow-hidden" @click.away="showPDFPreview = false">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="text-2xl font-bold mb-1">📄 Document Preview</h3>
+              <p class="text-slate-300">Professional engagement letter ready for download</p>
+            </div>
+            <button @click="showPDFPreview = false" class="text-slate-300 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Preview Content -->
+        <div class="overflow-y-auto max-h-[60vh]">
+          <iframe x-bind:src="previewUrl" class="w-full h-[60vh] border-0" style="min-height: 600px;"></iframe>
+        </div>
+        
+        <!-- Modal Actions -->
+        <div class="p-6 bg-gradient-to-r from-slate-50 to-blue-50 border-t border-slate-200">
+          <div class="flex flex-col sm:flex-row gap-4 justify-between items-center">
+            <div class="text-sm text-slate-600">
+              <div class="flex items-center space-x-2 mb-2">
+                <span class="text-green-600">✓</span>
+                <span>Professional law firm letterhead</span>
+              </div>
+              <div class="flex items-center space-x-2 mb-2">
+                <span class="text-green-600">✓</span>
+                <span>Singapore Law Society compliant</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span class="text-green-600">✓</span>
+                <span>Ready for client signature</span>
+              </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button @click="downloadPDF(true)" 
+                      class="px-6 py-3 bg-amber-500 text-white font-semibold rounded-lg hover:bg-amber-600 transition-all transform hover:scale-105 shadow-lg">
+                📥 Download Draft PDF
+              </button>
+              <button @click="downloadPDF(false)" 
+                      class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all transform hover:scale-105 shadow-lg">
+                📥 Download Final PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function legalFlowApp() {
+      return {
+        // UI State
+        showHero: false,
+        showSubtitle: false, 
+        showStats: false,
+        showPanels: false,
+        showROI: false,
+        showPDFPreview: false,
+        previewUrl: '',
+        
+        // Form Data
+        formData: {
+          clientName: '',
+          transactionType: '',
+          transactionValue: '',
+          urgency: '',
+          specialRequirements: ''
+        },
+        
+        // Generation State
+        isGenerating: false,
+        progress: 0,
+        reasoningMessages: [],
+        generatedLetter: '',
+        intelligenceScore: 0,
+        complianceChecks: [],
+        
+        // Process Comparison
+        manualTimeElapsed: 0,
+        aiTimeElapsed: 0,
+        comparisonTimer: null,
+        manualSteps: [
+          { name: 'Find precedent document', duration: '2-3 minutes' },
+          { name: 'Copy and modify template', duration: '3-5 minutes' },
+          { name: 'Research client requirements', duration: '5-8 minutes' },
+          { name: 'Customise legal clauses', duration: '10-15 minutes' },
+          { name: 'Check Singapore compliance', duration: '8-12 minutes' },
+          { name: 'Review and format', duration: '5-8 minutes' },
+          { name: 'Final quality check', duration: '3-5 minutes' }
+        ],
+        aiSteps: [
+          { name: 'Analyse transaction profile', duration: '5-8 seconds' },
+          { name: 'Apply legal intelligence', duration: '10-15 seconds' },
+          { name: 'Generate bespoke content', duration: '25-35 seconds' },
+          { name: 'Ensure compliance', duration: '15-20 seconds' },
+          { name: 'Final formatting', duration: '10-15 seconds' }
+        ],
+        
+        // ROI Calculations
+        annualSavings: 219000,
+        hoursPerWeek: 36.5,
+        lettersPerWeek: 15,
+        
+        // Animated ROI values
+        animatedAnnualSavings: 0,
+        animatedHoursPerWeek: 0,
+        animatedLettersPerWeek: 0,
+        roiAnimationTimer: null,
+        
+        // Demo Scenarios
+        demoScenarios: {
+          techAcquisition: {
+            clientName: 'TechVentures Pte Ltd',
+            transactionType: 'acquisition',
+            transactionValue: '25m-100m',
+            urgency: 'urgent',
+            specialRequirements: 'Cross-border IP licensing, regulatory approvals required'
+          },
+          realEstateMerger: {
+            clientName: 'Singapore Properties Group',
+            transactionType: 'merger',
+            transactionValue: '5m-25m',
+            urgency: 'standard',
+            specialRequirements: 'REIT restructuring, minority shareholder concerns'
+          },
+          startupFunding: {
+            clientName: 'InnovateSG Pte Ltd',
+            transactionType: 'joint-venture',
+            transactionValue: 'under-5m',
+            urgency: 'complex',
+            specialRequirements: 'Government co-investment, IP protection'
+          }
+        },
+        
+        init() {
+          // Staggered animations for hero section
+          setTimeout(() => this.showHero = true, 100);
+          setTimeout(() => this.showSubtitle = true, 500);
+          setTimeout(() => this.showStats = true, 1000);
+          setTimeout(() => this.showPanels = true, 1500);
+        },
+        
+        getClientSuggestion(name) {
+          if (name.toLowerCase().includes('tech')) {
+            return '💡 Detected: Technology company - IP clauses recommended';
+          } else if (name.toLowerCase().includes('property') || name.toLowerCase().includes('real')) {
+            return '🏢 Detected: Real estate - Due diligence protocols required';
+          } else if (name.toLowerCase().includes('venture') || name.toLowerCase().includes('capital')) {
+            return '💰 Detected: Investment firm - Enhanced liability provisions';
+          }
+          return '';
+        },
+        
+        loadDemo(scenario) {
+          this.formData = { ...this.demoScenarios[scenario] };
+        },
+        
+        async generateLetter() {
+          this.isGenerating = true;
+          this.progress = 0;
+          this.reasoningMessages = [];
+          this.generatedLetter = '';
+          this.intelligenceScore = 0;
+          this.complianceChecks = [];
+          this.manualTimeElapsed = 0;
+          this.aiTimeElapsed = 0;
+          
+          // Start comparison timers
+          this.startComparisonTimers();
+          
+          try {
+            const response = await fetch('/api/generate', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(this.formData)
+            });
+            
+            if (!response.ok) {
+              throw new Error('Generation failed');
+            }
+            
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              
+              const chunk = decoder.decode(value);
+              const lines = chunk.split('\n');
+              
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  try {
+                    const data = JSON.parse(line.slice(6));
+                    this.handleStreamUpdate(data);
+                  } catch (e) {
+                    console.log('Parse error:', e);
+                  }
+                }
+              }
+            }
+            
+          } catch (error) {
+            console.error('Generation error:', error);
+            this.addReasoningMessage('error', '❌ Error', 'Generation failed. Please try again.');
+          } finally {
+            this.isGenerating = false;
+            this.stopComparisonTimers();
+          }
+        },
+        
+        startComparisonTimers() {
+          const startTime = Date.now();
+          this.comparisonTimer = setInterval(() => {
+            if (this.isGenerating) {
+              this.aiTimeElapsed = Math.floor((Date.now() - startTime) / 1000);
+              this.manualTimeElapsed = this.aiTimeElapsed; // Both start at same time
+            }
+          }, 1000);
+        },
+        
+        stopComparisonTimers() {
+          if (this.comparisonTimer) {
+            clearInterval(this.comparisonTimer);
+            this.comparisonTimer = null;
+          }
+        },
+        
+        shouldShowManualStep(stepIndex) {
+          const timeThresholds = [0, 150, 300, 600, 1200, 1800, 2400]; // seconds for each step
+          return this.manualTimeElapsed >= timeThresholds[stepIndex];
+        },
+        
+        shouldShowAiStep(stepIndex) {
+          const progressThresholds = [5, 25, 55, 80, 95]; // progress % for each AI step
+          return this.progress >= progressThresholds[stepIndex];
+        },
+        
+        formatTime(seconds) {
+          if (seconds < 60) return seconds + 's';
+          const minutes = Math.floor(seconds / 60);
+          const remainingSeconds = seconds % 60;
+          return minutes + 'm ' + remainingSeconds + 's';
+        },
+        
+        getManualProcessStatus() {
+          if (this.manualTimeElapsed < 120) return 'Still finding the right precedent...';
+          if (this.manualTimeElapsed < 300) return 'Copying and modifying template...';
+          if (this.manualTimeElapsed < 600) return 'Researching specific requirements...';
+          if (this.manualTimeElapsed < 1200) return 'Customising legal clauses manually...';
+          if (this.manualTimeElapsed < 1800) return 'Cross-checking Singapore compliance...';
+          if (this.manualTimeElapsed < 2400) return 'Reviewing and formatting document...';
+          return 'Nearly done with final quality checks...';
+        },
+        
+        getAiProcessStatus() {
+          if (this.progress < 15) return 'AI analysing transaction complexity...';
+          if (this.progress < 35) return 'Applying legal intelligence algorithms...';
+          if (this.progress < 65) return 'Generating sophisticated content...';
+          if (this.progress < 85) return 'Ensuring regulatory compliance...';
+          if (this.progress < 100) return 'Finalising professional formatting...';
+          return 'Complete! Ready for immediate use.';
+        },
+        
+        showROIModal() {
+          this.showROI = true;
+          this.animateROICounters();
+        },
+        
+        animateROICounters() {
+          // Reset animated values
+          this.animatedAnnualSavings = 0;
+          this.animatedHoursPerWeek = 0;
+          this.animatedLettersPerWeek = 0;
+          
+          // Clear existing timer
+          if (this.roiAnimationTimer) {
+            clearInterval(this.roiAnimationTimer);
+          }
+          
+          const duration = 2000; // 2 seconds
+          const steps = 50;
+          const stepDuration = duration / steps;
+          
+          let currentStep = 0;
+          
+          this.roiAnimationTimer = setInterval(() => {
+            currentStep++;
+            const progress = Math.min(currentStep / steps, 1);
+            
+            // Eased animation (starts fast, slows down)
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            
+            this.animatedAnnualSavings = Math.round(this.annualSavings * easeOut);
+            this.animatedHoursPerWeek = Math.round(this.hoursPerWeek * easeOut * 10) / 10;
+            this.animatedLettersPerWeek = Math.round(this.lettersPerWeek * easeOut);
+            
+            if (progress >= 1) {
+              clearInterval(this.roiAnimationTimer);
+              this.roiAnimationTimer = null;
+            }
+          }, stepDuration);
+        },
+        
+        handleStreamUpdate(data) {
+          if (data.type === 'reasoning') {
+            this.addReasoningMessage('thinking', data.stage, data.detail);
+            this.progress = data.progress || this.progress;
+            this.updateIntelligenceScore(data.progress);
+            this.updateComplianceChecks(data.stage);
+          } else if (data.type === 'content') {
+            this.generatedLetter += data.content;
+          } else if (data.type === 'complete') {
+            this.progress = 100;
+            this.intelligenceScore = 95;
+            this.addReasoningMessage('complete', '✅ Generation Complete', data.analysis ? 
+              `🎉 Partner-level letter ready! Complexity: ${data.analysis.complexity}, Risks: ${data.analysis.riskFactors}, Time saved: ${data.analysis.timeSaved}` :
+              '🎉 Your engagement letter is ready!');
+            this.finalizeComplianceChecks();
+            this.triggerCompletionCelebration();
+          }
+        },
+        
+        triggerCompletionCelebration() {
+          // Add celebration effect when generation completes
+          setTimeout(() => {
+            const outputPanel = document.querySelector('#output-display').closest('.panel-shadow');
+            if (outputPanel) {
+              outputPanel.classList.add('success-bounce');
+              setTimeout(() => {
+                outputPanel.classList.remove('success-bounce');
+              }, 1000);
+            }
+          }, 500);
+        },
+        
+        updateIntelligenceScore(progress) {
+          if (progress >= 15) this.intelligenceScore = Math.min(25, this.intelligenceScore + 5);
+          if (progress >= 35) this.intelligenceScore = Math.min(50, this.intelligenceScore + 10);
+          if (progress >= 55) this.intelligenceScore = Math.min(75, this.intelligenceScore + 15);
+          if (progress >= 80) this.intelligenceScore = Math.min(90, this.intelligenceScore + 10);
+        },
+        
+        updateComplianceChecks(stage) {
+          const checks = [
+            { name: 'Law Society Requirements', triggered: stage.includes('Singapore') },
+            { name: 'PDPA Compliance', triggered: stage.includes('Singapore') || stage.includes('Legal Review') },
+            { name: 'SIAC Arbitration Clause', triggered: stage.includes('Legal Review') },
+            { name: 'Professional Standards', triggered: stage.includes('Quality') }
+          ];
+          
+          checks.forEach(check => {
+            if (check.triggered && !this.complianceChecks.find(c => c.name === check.name)) {
+              this.complianceChecks.push({ name: check.name, status: 'complete' });
+            }
+          });
+        },
+        
+        finalizeComplianceChecks() {
+          const requiredChecks = [
+            'Law Society Requirements',
+            'PDPA Compliance', 
+            'SIAC Arbitration Clause',
+            'Professional Standards'
+          ];
+          
+          requiredChecks.forEach(name => {
+            if (!this.complianceChecks.find(c => c.name === name)) {
+              this.complianceChecks.push({ name, status: 'complete' });
+            }
+          });
+        },
+        
+        getIntelligenceDescription(score) {
+          if (score >= 90) return 'Exceptional partner-level intelligence applied';
+          if (score >= 75) return 'Advanced legal reasoning demonstrated';
+          if (score >= 50) return 'Sophisticated analysis in progress';
+          if (score >= 25) return 'AI intelligence activated';
+          return 'Initializing legal intelligence engine';
+        },
+        
+        getMessageStyling(type, stage) {
+          if (stage.includes('Complete') || stage.includes('✅')) {
+            return 'bg-green-50 border-l-4 border-green-500 shadow-sm';
+          } else if (stage.includes('Risk') || stage.includes('⚠️')) {
+            return 'bg-amber-50 border-l-4 border-amber-500 shadow-sm';
+          } else if (stage.includes('Singapore') || stage.includes('🇸🇬')) {
+            return 'bg-red-50 border-l-4 border-red-400 shadow-sm';
+          } else if (stage.includes('Intelligence') || stage.includes('🧠')) {
+            return 'bg-purple-50 border-l-4 border-purple-500 shadow-sm';
+          } else {
+            return 'bg-blue-50 border-l-4 border-blue-400 shadow-sm';
+          }
+        },
+        
+        addReasoningMessage(type, stage, detail) {
+          const icons = {
+            thinking: '🤔',
+            complete: '✅',
+            error: '❌'
+          };
+          
+          // Extract stage-specific icon if present
+          const stageIcon = stage.split(' ')[0];
+          const finalIcon = ['🔍', '📊', '⚠️', '💰', '🇸🇬', '📋', '🧠', '⚖️', '🎯', '✅'].includes(stageIcon) 
+            ? stageIcon : icons[type];
+          
+          // Extract metrics from detail if present
+          let metrics = null;
+          if (detail.includes('complexity:')) {
+            const complexityMatch = detail.match(/complexity: (\w+)/i);
+            const risksMatch = detail.match(/(\d+).*risk/i);
+            metrics = {
+              complexity: complexityMatch ? complexityMatch[1] : null,
+              risks: risksMatch ? risksMatch[1] : null
+            };
+          }
+          
+          this.reasoningMessages.push({
+            id: Date.now() + Math.random(),
+            type,
+            icon: finalIcon,
+            stage,
+            detail,
+            timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false }),
+            metrics
+          });
+          
+          // Auto-scroll to bottom with smooth behavior
+          this.$nextTick(() => {
+            const container = document.getElementById('reasoning-display');
+            container.scrollTo({
+              top: container.scrollHeight,
+              behavior: 'smooth'
+            });
+          });
+        },
+        
+        async showPDFPreviewModal() {
+          try {
+            // Generate preview URL using data URL
+            const previewResponse = await fetch('/api/pdf-preview', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                content: this.generatedLetter,
+                clientName: this.formData.clientName,
+                isDraft: true
+              })
+            });
+            
+            if (previewResponse.ok) {
+              const previewHtml = await previewResponse.text();
+              const blob = new Blob([previewHtml], { type: 'text/html' });
+              this.previewUrl = URL.createObjectURL(blob);
+              this.showPDFPreview = true;
+            }
+          } catch (error) {
+            console.error('PDF preview error:', error);
+            // Fallback to direct download if preview fails
+            this.downloadPDF(false);
+          }
+        },
+
+        async downloadPDF(isDraft = false) {
+          try {
+            // Show loading state
+            const originalButton = event?.target;
+            if (originalButton) {
+              originalButton.disabled = true;
+              originalButton.innerHTML = isDraft ? '⏳ Generating Draft...' : '⏳ Generating PDF...';
+            }
+            
+            const response = await fetch('/api/pdf', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                content: this.generatedLetter,
+                clientName: this.formData.clientName,
+                isDraft: isDraft
+              })
+            });
+            
+            if (response.ok) {
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              
+              // Get filename from response headers
+              const contentDisposition = response.headers.get('Content-Disposition');
+              let filename = `engagement-letter-${this.formData.clientName.replace(/\s+/g, '-').toLowerCase()}`;
+              if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                if (filenameMatch) {
+                  filename = filenameMatch[1];
+                }
+              }
+              
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(a);
+              
+              // Close preview modal if open
+              this.showPDFPreview = false;
+              
+              // Show success message
+              this.showSuccessMessage(isDraft ? 'Draft PDF downloaded!' : 'Final PDF downloaded!');
+            }
+          } catch (error) {
+            console.error('PDF download error:', error);
+            this.showErrorMessage('PDF download failed. Please try again.');
+          } finally {
+            // Reset button state
+            if (originalButton) {
+              originalButton.disabled = false;
+              originalButton.innerHTML = isDraft ? '📥 Download Draft PDF' : '📥 Download Final PDF';
+            }
+          }
+        },
+        
+        showSuccessMessage(message) {
+          // Simple success notification
+          const notification = document.createElement('div');
+          notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse';
+          notification.textContent = message;
+          document.body.appendChild(notification);
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 3000);
+        },
+        
+        showErrorMessage(message) {
+          // Simple error notification
+          const notification = document.createElement('div');
+          notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+          notification.textContent = message;
+          document.body.appendChild(notification);
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 5000);
+        },
+        
+        // Cleanup on component destroy
+        destroy() {
+          this.stopComparisonTimers();
+          if (this.roiAnimationTimer) {
+            clearInterval(this.roiAnimationTimer);
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
