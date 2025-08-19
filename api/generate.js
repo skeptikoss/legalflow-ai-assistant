@@ -1,8 +1,18 @@
 const { Anthropic } = require('@anthropic-ai/sdk');
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+let anthropic;
+
+function initializeAnthropic() {
+  if (!anthropic) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY not configured');
+    }
+    anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+  }
+  return anthropic;
+}
 
 // Enhanced caching system for demo scenarios
 const responseCache = new Map();
@@ -93,13 +103,16 @@ Make it sound like it was written by a Magic Circle-trained partner with deep Si
 Format as a complete, professional engagement letter ready for client signature.`;
 
   try {
+    // Initialize Anthropic client
+    const client = initializeAnthropic();
+    
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive'
     });
 
-    const stream = await anthropic.messages.create({
+    const stream = await client.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 4000,
       temperature: 0.3,
@@ -148,7 +161,17 @@ Format as a complete, professional engagement letter ready for client signature.
 
   } catch (error) {
     console.error('API Error:', error);
-    res.write(`data: ${JSON.stringify({ error: 'Failed to generate content. Please try again.' })}\n\n`);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      apiKeyExists: !!process.env.ANTHROPIC_API_KEY,
+      apiKeyLength: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 0
+    });
+    
+    res.write(`data: ${JSON.stringify({ 
+      error: 'Failed to generate content. Please try again.',
+      details: error.message 
+    })}\n\n`);
     res.end();
   }
 };
