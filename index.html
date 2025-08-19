@@ -1015,6 +1015,7 @@
           } else if (data.type === 'complete') {
             this.progress = 100;
             this.intelligenceScore = 95;
+            this.generatedLetter = data.fullResponse || '';
             this.addReasoningMessage('complete', '✅ Generation Complete', data.analysis ? 
               `🎉 Partner-level letter ready! Complexity: ${data.analysis.complexity}, Risks: ${data.analysis.riskFactors}, Time saved: ${data.analysis.timeSaved}` :
               '🎉 Your engagement letter is ready!');

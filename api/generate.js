@@ -151,9 +151,9 @@ module.exports = async (req, res) => {
     for (const stage of stages) {
       res.write(`data: ${JSON.stringify({ 
         type: 'reasoning', 
-        stage: currentStage++, 
+        stage: stage, 
         detail: stage,
-        progress: Math.round((currentStage / stages.length) * 80)
+        progress: Math.round((currentStage++ / stages.length) * 80)
       })}\n\n`);
       await new Promise(resolve => setTimeout(resolve, 200));
     }
@@ -194,9 +194,9 @@ module.exports = async (req, res) => {
     for (const stage of stages) {
       res.write(`data: ${JSON.stringify({ 
         type: 'reasoning', 
-        stage: currentStage++, 
+        stage: stage, 
         detail: stage,
-        progress: Math.round((currentStage / stages.length) * 80) // 80% for reasoning, 20% for generation
+        progress: Math.round((currentStage++ / stages.length) * 80) // 80% for reasoning, 20% for generation
       })}\n\n`);
       await new Promise(resolve => setTimeout(resolve, 300));
     }
